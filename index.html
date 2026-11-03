@@ -1,0 +1,741 @@
+const modal = document.getElementB<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shorts Script Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        emerald: {
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            50: '#f0fdf4',
+                            100: '#dcfce7'
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 30px -5px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 20px rgba(34, 197, 94, 0.35)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .toast-enter {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        .toast-show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6 md:p-10">
+
+    <!-- Toast Notification (Top-Right) -->
+    <div id="toast" class="fixed top-5 right-5 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-800 transition-all duration-300 pointer-events-none toast-enter">
+        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-check text-base"></i>
+        </div>
+        <div>
+            <h4 class="font-semibold text-sm text-slate-100" id="toast-title">Copiato negli appunti!</h4>
+            <p class="text-xs text-slate-400" id="toast-desc">Il testo è pronto per essere incollato.</p>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto w-full space-y-6">
+
+        <!-- HEADER -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 sm:p-8 rounded-3xl shadow-soft border border-slate-100">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-2xl shadow-glow shrink-0">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Shorts Script Generator</h1>
+                        <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">v2.5 Pro</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-1">Crea copioni virali ottimizzati per YouTube Shorts, Reels e TikTok in secondi.</p>
+                </div>
+            </div>
+            <button onclick="toggleHistoryModal()" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 hover:border-slate-300 transition-all text-sm">
+                <i class="fa-solid fa-clock-rotate-left text-emerald-500"></i>
+                <span>Storico Script</span>
+                <span id="history-count" class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+            </button>
+        </header>
+
+        <!-- GUIDA RAPIDA COLLASSABILE -->
+        <section class="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden transition-all duration-300">
+            <button onclick="toggleGuide()" class="w-full p-6 text-left flex items-center justify-between font-semibold text-slate-800 hover:bg-slate-50/50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-circle-info text-emerald-500 text-lg"></i>
+                    <span>Come creare uno script ad alto engagement (Guida Rapida)</span>
+                </div>
+                <i id="guide-chevron" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-300"></i>
+            </button>
+            <div id="guide-content" class="hidden px-6 pb-6 pt-2 border-t border-slate-100">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-sm mb-3">1</div>
+                        <h3 class="font-bold text-slate-800 text-sm mb-1">Scegli Argomento & Tono</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">Inserisci il tema del video o usa un preset rapido. Scegli se la struttura deve dura 30s o 60s.</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-sm mb-3">2</div>
+                        <h3 class="font-bold text-slate-800 text-sm mb-1">Genera la Struttura a 3 Blocchi</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">L'app separerà chiaramente il **Gancio** (ritenzione immediata), il **Corpo** (valore ritmato) e la **CTA** (conversioni).</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-sm mb-3">3</div>
+                        <h3 class="font-bold text-slate-800 text-sm mb-1">Copia e Registra</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">Copia i singoli blocchi o lo script completo con un clic. Segui le istruzioni per il parlato e i suggerimenti B-Roll.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FORM GENERAZIONE SCRIPT -->
+        <section class="bg-white p-6 sm:p-8 rounded-3xl shadow-soft border border-slate-100 space-y-6">
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-emerald-500"></i>
+                Configura il tuo Video
+            </h2>
+
+            <form id="script-form" onsubmit="generateScript(event)" class="space-y-6">
+                <!-- Argomento principale & Preset -->
+                <div>
+                    <label for="topic" class="block text-sm font-semibold text-slate-700 mb-2">
+                        Argomento del Video <span class="text-emerald-500">*</span>
+                    </label>
+                    <input type="text" id="topic" required placeholder="Es. 3 trucchi per la Produttività personale, Come investire 100€, Ricetta Pasta Express..." 
+                        class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 placeholder-slate-400 text-sm transition-all shadow-sm">
+                    
+                    <!-- Preset Chips -->
+                    <div class="flex flex-wrap gap-2 mt-3 items-center">
+                        <span class="text-xs font-semibold text-slate-400 mr-1">Niche suggerite:</span>
+                        <button type="button" onclick="setPreset('Produttività & Time Management')" class="px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs font-medium transition-colors">⚡ Produttività</button>
+                        <button type="button" onclick="setPreset('Finanza Personale & Risparmio')" class="px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs font-medium transition-colors">💰 Finanza</button>
+                        <button type="button" onclick="setPreset('Cucina Fast & Healthy')" class="px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs font-medium transition-colors">🍳 Cucina</button>
+                        <button type="button" onclick="setPreset('Growth Hacking & Digital Marketing')" class="px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs font-medium transition-colors">📈 Marketing</button>
+                        <button type="button" onclick="setPreset('Fitness & Allenamento a Casa')" class="px-3 py-1 rounded-xl bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 text-xs font-medium transition-colors">🏋️ Fitness</button>
+                    </div>
+                </div>
+
+                <!-- Selettori Durata e Tono -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Durata -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Durata Video</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="relative flex items-center justify-center p-3.5 border rounded-2xl cursor-pointer transition-all duration-200 text-center select-none duration-card border-emerald-500 bg-emerald-50/40 text-emerald-700 font-semibold text-sm">
+                                <input type="radio" name="duration" value="30" checked onchange="updateRadioStyles()" class="sr-only">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-stopwatch text-emerald-500"></i>
+                                    <span>30 Sec (Rapido)</span>
+                                </div>
+                            </label>
+                            <label class="relative flex items-center justify-center p-3.5 border border-slate-200 rounded-2xl cursor-pointer transition-all duration-200 text-center select-none duration-card text-slate-600 hover:bg-slate-50 font-medium text-sm">
+                                <input type="radio" name="duration" value="60" onchange="updateRadioStyles()" class="sr-only">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-clock text-slate-400"></i>
+                                    <span>60 Sec (Approfondito)</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Tono/Stile -->
+                    <div>
+                        <label for="tone" class="block text-sm font-semibold text-slate-700 mb-2">Stile / Tono di Voce</label>
+                        <div class="relative">
+                            <select id="tone" class="w-full px-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 text-sm appearance-none bg-white font-medium transition-all shadow-sm">
+                                <option value="diretto">⚡ Diretto & Incalzante (Hook d'impatto, zero fronzoli)</option>
+                                <option value="storytelling">📖 Storytelling (Problema -> Curiosità -> Soluzione)</option>
+                                <option value="educativo">🎓 Educativo & Formativo (Punti chiari, valore pratico)</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pulsante di Generazione -->
+                <button type="submit" id="btn-generate" class="w-full py-4 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-base shadow-glow transition-all flex items-center justify-center gap-3 active:scale-[0.99]">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Genera Script Completo</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- RISULTATO SCRIPT A 3 BLOCCHI -->
+        <section id="result-section" class="hidden space-y-6">
+            
+            <!-- Barra Superiore Risultati -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900 text-white p-6 rounded-3xl shadow-xl">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <h3 class="font-bold text-lg text-slate-100">Script Generato con Successo</h3>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1" id="result-meta">Argomento: - | Durata: 30s | Stile: Diretto</p>
+                </div>
+                <button onclick="copyFullScript()" class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-glow transition-all active:scale-95 shrink-0">
+                    <i class="fa-solid fa-copy"></i>
+                    <span>Copia Script Completo</span>
+                </button>
+            </div>
+
+            <!-- BLOCCO 1: GANCIO -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-soft border border-slate-100 relative group transition-all hover:border-emerald-200">
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-sm">
+                            01
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-base">BLOCCO 1: GANCIO (Hook)</h4>
+                            <span class="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">Primi 0 - 3 Secondi</span>
+                        </div>
+                    </div>
+                    <button onclick="copyBlock('block-hook', 'Gancio (0-3s)')" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-emerald-600 font-medium text-xs transition-colors flex items-center gap-1.5">
+                        <i class="fa-regular fa-copy"></i> Copia Gancio
+                    </button>
+                </div>
+                <div id="block-hook" class="space-y-3 text-slate-700 text-sm">
+                    <!-- Contenuto dinamico -->
+                </div>
+            </div>
+
+            <!-- BLOCCO 2: CORPO DEL VIDEO -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-soft border border-slate-100 relative group transition-all hover:border-emerald-200">
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+                            02
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-base">BLOCCO 2: CORPO DEL VIDEO</h4>
+                            <span id="body-time-badge" class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">Da 4 a 25 Secondi</span>
+                        </div>
+                    </div>
+                    <button onclick="copyBlock('block-body', 'Corpo Video')" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-emerald-600 font-medium text-xs transition-colors flex items-center gap-1.5">
+                        <i class="fa-regular fa-copy"></i> Copia Corpo
+                    </button>
+                </div>
+                <div id="block-body" class="space-y-4 text-slate-700 text-sm">
+                    <!-- Contenuto dinamico -->
+                </div>
+            </div>
+
+            <!-- BLOCCO 3: CALL TO ACTION -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-soft border border-slate-100 relative group transition-all hover:border-emerald-200">
+                <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-sm">
+                            03
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-base">BLOCCO 3: CHIAMATA ALL'AZIONE (CTA)</h4>
+                            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Ultimi 5 Secondi</span>
+                        </div>
+                    </div>
+                    <button onclick="copyBlock('block-cta', 'Call to Action')" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-emerald-600 font-medium text-xs transition-colors flex items-center gap-1.5">
+                        <i class="fa-regular fa-copy"></i> Copia CTA
+                    </button>
+                </div>
+                <div id="block-cta" class="space-y-3 text-slate-700 text-sm">
+                    <!-- Contenuto dinamico -->
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- MODALE STORICO SCRIPT -->
+    <div id="history-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-clock-rotate-left text-emerald-500 text-lg"></i>
+                    <h3 class="font-bold text-slate-800 text-lg">Storico Script Salvati</h3>
+                </div>
+                <button onclick="toggleHistoryModal()" class="w-9 h-9 rounded-full bg-slate-200/60 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="history-list" class="p-6 overflow-y-auto space-y-4 flex-1">
+                <!-- Elenco dinamico storico -->
+            </div>
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
+                <button onclick="clearHistory()" class="text-xs text-red-500 hover:text-red-700 font-semibold px-3 py-2 rounded-xl hover:bg-red-50 transition-colors">
+                    <i class="fa-solid fa-trash mr-1"></i> Svuota Storico
+                </button>
+                <button onclick="toggleGuide(); toggleHistoryModal();" class="text-xs text-slate-500 hover:text-slate-700 font-medium">
+                    Serve aiuto? Apri Guida
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="mt-12 text-center text-xs text-slate-400 py-4">
+        Shorts Script Generator &copy; 2026 &bull; Ottimizzato per YouTube Shorts, Instagram Reels & TikTok
+    </footer>
+
+    <!-- LOGICA JAVASCRIPT COMPLETA -->
+    <script>
+        // Data Store per lo storico
+        let historyData = [];
+
+        // Inizializzazione al caricamento
+        window.onload = function() {
+            loadHistory();
+        };
+
+        // Toggle Guida Rapida
+        function toggleGuide() {
+            const content = document.getElementById('guide-content');
+            const chevron = document.getElementById('guide-chevron');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
+
+        // Imposta Preset rapido
+        function setPreset(val) {
+            document.getElementById('topic').value = val;
+        }
+
+        // Aggiorna stile dei radio button personalizzati
+        function updateRadioStyles() {
+            const radios = document.getElementsByName('duration');
+            radios.forEach(r => {
+                const parent = r.closest('label');
+                const icon = parent.querySelector('i');
+                if (r.checked) {
+                    parent.className = 'relative flex items-center justify-center p-3.5 border rounded-2xl cursor-pointer transition-all duration-200 text-center select-none border-emerald-500 bg-emerald-50/40 text-emerald-700 font-semibold text-sm shadow-sm';
+                    if (icon) {
+                        icon.className = icon.className.replace('text-slate-400', 'text-emerald-500');
+                    }
+                } else {
+                    parent.className = 'relative flex items-center justify-center p-3.5 border border-slate-200 rounded-2xl cursor-pointer transition-all duration-200 text-center select-none text-slate-600 hover:bg-slate-50 font-medium text-sm';
+                    if (icon) {
+                        icon.className = icon.className.replace('text-emerald-500', 'text-slate-400');
+                    }
+                }
+            });
+        }
+
+        // Mostra Toast Notification
+        function showToast(title, desc) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-desc').innerText = desc;
+
+            toast.classList.remove('toast-enter');
+            toast.classList.add('toast-show');
+
+            setTimeout(() => {
+                toast.classList.remove('toast-show');
+                toast.classList.add('toast-enter');
+            }, 3000);
+        }
+
+        // Helper per Copia negli appunti
+        function copyToClipboard(text, title, desc) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast(title, desc);
+                }).catch(() => {
+                    fallbackCopy(text, title, desc);
+                });
+            } else {
+                fallbackCopy(text, title, desc);
+            }
+        }
+
+        function fallbackCopy(text, title, desc) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(title, desc);
+            } catch (err) {
+                console.error('Errore copia', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Copia Singolo Blocco
+        function copyBlock(elementId, blockName) {
+            const container = document.getElementById(elementId);
+            let textToCopy = `--- ${blockName.toUpperCase()} ---\n`;
+            
+            // Estrazione pulita del testo recitato e delle note visive
+            const items = container.querySelectorAll('.script-part');
+            items.forEach(item => {
+                const label = item.querySelector('.part-label') ? item.querySelector('.part-label').innerText : '';
+                const content = item.querySelector('.part-content') ? item.querySelector('.part-content').innerText : '';
+                textToCopy += `${label}: ${content}\n`;
+            });
+
+            copyToClipboard(textToCopy.trim(), `${blockName} copiato!`, 'Incollalo nel tuo teleprompter o nelle note.');
+        }
+
+        // Copia Script Completo
+        function copyFullScript() {
+            const topic = document.getElementById('topic').value;
+            const duration = document.querySelector('input[name="duration"]:checked').value;
+            
+            let fullText = `🎬 SCRIPT SHORTS: ${topic.toUpperCase()} (${duration}s)\n\n`;
+            
+            const blocks = [
+                { id: 'block-hook', name: '01. GANCIO (0-3s)' },
+                { id: 'block-body', name: `02. CORPO DEL VIDEO (4-${duration === '30' ? '25' : '50'}s)` },
+                { id: 'block-cta', name: '03. CALL TO ACTION (Ultimi 5s)' }
+            ];
+
+            blocks.forEach(b => {
+                fullText += `=== ${b.name} ===\n`;
+                const container = document.getElementById(b.id);
+                const items = container.querySelectorAll('.script-part');
+                items.forEach(item => {
+                    const label = item.querySelector('.part-label') ? item.querySelector('.part-label').innerText : '';
+                    const content = item.querySelector('.part-content') ? item.querySelector('.part-content').innerText : '';
+                    fullText += `${label}: ${content}\n`;
+                });
+                fullText += `\n`;
+            });
+
+            copyToClipboard(fullText.trim(), 'Script Completo copiato!', 'Tutti i 3 blocchi sono stati copiati negli appunti.');
+        }
+
+        // Generatore Logico dello Script
+        function generateScript(e) {
+            e.preventDefault();
+            
+            const topic = document.getElementById('topic').value.trim();
+            const duration = document.querySelector('input[name="duration"]:checked').value;
+            const tone = document.getElementById('tone').value;
+
+            if (!topic) return;
+
+            // Animazione di caricamento sul bottone
+            const btn = document.getElementById('btn-generate');
+            const originalBtnHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Generazione in corso...</span>`;
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Generazione dati
+                const scriptData = buildScriptContent(topic, duration, tone);
+                
+                // Render nei blocchi
+                renderScript(scriptData, topic, duration, tone);
+                
+                // Salva nello storico
+                saveToHistory({
+                    id: Date.now(),
+                    date: new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' }),
+                    topic: topic,
+                    duration: duration,
+                    tone: tone,
+                    data: scriptData
+                });
+
+                // Ripristina bottone
+                btn.innerHTML = originalBtnHTML;
+                btn.disabled = false;
+
+                // Mostra sezione risultati con scroll fluido
+                const resSection = document.getElementById('result-section');
+                resSection.classList.remove('hidden');
+                resSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                showToast('Script Generato!', 'Strutturato perfettamente in 3 blocchi.');
+            }, 600);
+        }
+
+        // Motore di Generazione Template/Algoritmo
+        function buildScriptContent(topic, duration, tone) {
+            const is30s = duration === '30';
+            const cleanTopic = topic.charAt(0).toUpperCase() + topic.slice(1);
+
+            let hookText = "";
+            let hookVisual = "";
+
+            let bodyPoints = [];
+            
+            let ctaText = "";
+            let ctaVisual = "";
+
+            // Customizzazione basata sul TONO
+            if (tone === 'diretto') {
+                hookText = `"Fermati! Se stai ancora commettendo questo errore con ${cleanTopic}, stai letteralmente sprecando il tuo tempo."`;
+                hookVisual = `Inquadratura stretta (Close-up), punto il dito verso la fotocamera o gesto di alt con la mano. Testo dinamico a schermo: "STOP AI FAULI ❌"`;
+
+                if (is30s) {
+                    bodyPoints = [
+                        { label: "Punto 1 (Recitato)", text: `Primo: smetti immediatamente di farlo nel modo tradizionale. È lento e inefficace.`, visual: "Taglio rapido. Mostra uno screen o clip B-Roll di frustrazione/caos." },
+                        { label: "Punto 2 (Recitato)", text: `Secondo: applica subito la regola dell'80/20 per automatizzare i passaggi principali.`, visual: "Cambio inquadratura laterale. Grafica pop-up con icona '80/20'." }
+                    ];
+                } else {
+                    bodyPoints = [
+                        { label: "Punto 1 (Recitato)", text: `Primo errore da eliminare: credere che servano ore. Bastano 10 minuti focalizzati al giorno.`, visual: "B-Roll di un timer o orologio che corre veloce." },
+                        { label: "Punto 2 (Recitato)", text: `Secondo: usa questo strumento gratuito che quasi nessuno conosce per velocizzare tutto.`, visual: "Mostra lo schermo dello smartphone/PC indicando la soluzione." },
+                        { label: "Punto 3 (Recitato)", text: `Terzo: traccia i tuoi risultati ogni sera per capire cosa sta funzionando davvero.`, visual: "Azione rapida in cui spunti una casella su un blocco note." }
+                    ];
+                }
+
+                ctaText = `"Salva questo video prima che ti sfugga e lascia un commento con '${cleanTopic.split(' ')[0].toUpperCase()}' per la guida completa!"`;
+                ctaVisual = `Indicare in basso l'icona del segnalibro/salva. Animazione tasto "Segui".`;
+
+            } else if (tone === 'storytelling') {
+                hookText = `"Tre mesi fa ero totalmente bloccato con ${cleanTopic}... finché non ho scoperto questo piccolo segreto."`;
+                hookVisual = `Espressione pensierosa o sconsolata, poi cambio verso una faccia illuminata da un'idea. Testo a schermo: "IL SEGRETO 💡"`;
+
+                if (is30s) {
+                    bodyPoints = [
+                        { label: "Il Problema (Recitato)", text: `Continuavo a fare tentativi a vuoto e i risultati non arrivavano mai.`, visual: "B-Roll b&n o velocizzato mentre ti mani i capelli." },
+                        { label: "La Svolta (Recitato)", text: `Poi ho cambiato solo questa singola abitudine e tutto è diventato 10 volte più semplice.`, visual: "Transizione a colori vivaci, sorriso verso la camera." }
+                    ];
+                } else {
+                    bodyPoints = [
+                        { label: "Scena 1 (Recitato)", text: `Tutti mi dicevano che per fare progressi con ${cleanTopic} serviva un sacco di budget e tempo.`, visual: "Passeggiata lenta parlando alla fotocamera." },
+                        { label: "Scena 2 (Recitato)", text: `Ho provato a fare l'opposto: ho eliminato tutto il superfluo e tenuto solo l'essenziale.`, visual: "Gesto di spazzare via qualcosa dal tavolo." },
+                        { label: "Scena 3 (Recitato)", text: `In meno di 30 giorni ho ottenuto più risultati che in un anno intero di tentativi.`, visual: "Grafico in salita o screenshot dei risultati." }
+                    ];
+                }
+
+                ctaText = `"Se vuoi scoprire come applicarlo anche tu, seguimi ora per non perderti il prossimo capitolo!"`;
+                ctaVisual = `Indicare l'icona del profilo con un sorriso amichevole e un cenno della testa.`;
+
+            } else { // Educativo
+                hookText = `"Ecco la guida definitiva in 3 passi per padroneggiare ${cleanTopic}, anche se parti da zero."`;
+                hookVisual = `Inquadratura mezzobusto formale ma dinamica, mano che mostra il numero 3. Titolo in sovrimpressione: "GUIDA EXPRESS 📚"`;
+
+                if (is30s) {
+                    bodyPoints = [
+                        { label: "Fase 1 (Recitato)", text: `Passo 1: Definisci chiaramente il tuo obiettivo senza disperdere le energie.`, visual: "Grafica testuale: 1. OBIETTIWO CHIARO" },
+                        { label: "Fase 2 (Recitato)", text: `Passo 2: Utilizza un metodo collaudato ed evita di reinventare la ruota.`, visual: "Grafica testuale: 2. METODO SYSTEM" }
+                    ];
+                } else {
+                    bodyPoints = [
+                        { label: "Fase 1 (Recitato)", text: `Passo 1: Padroneggia i concetti base. La maggior parte fallisce perché salta le fondamenta.`, visual: "Mostra un libro o uno schema semplice disegnato su una lavagna." },
+                        { label: "Fase 2 (Recitato)", text: `Passo 2: Costruisci una routine costante. La costanza batte l'intensità 9 volte su 10.`, visual: "Calendario con crocette verdi sui giorni." },
+                        { label: "Fase 3 (Recitato)", text: `Passo 3: Correggi il tiro in base ai feedback pratici e continua ad ottimizzare.`, visual: "Ingranaggi che girano o B-Roll mentre analizzi dati." }
+                    ];
+                }
+
+                ctaText = `"Quale di questi passaggi trovi più difficile? Scrivimelo qui sotto nei commenti!"`;
+                ctaVisual = `Mano verso il basso per invitare a commentare. Box commento simulato in grafica.`;
+            }
+
+            return {
+                hook: { text: hookText, visual: hookVisual },
+                body: bodyPoints,
+                cta: { text: ctaText, visual: ctaVisual }
+            };
+        }
+
+        // Rendering dello script nell'interfaccia
+        function renderScript(data, topic, duration, tone) {
+            // Aggiorna Meta Info
+            const toneMap = { 'diretto': 'Diretto & Incalzante', 'storytelling': 'Storytelling', 'educativo': 'Educativo' };
+            document.getElementById('result-meta').innerText = `Argomento: "${topic}" | Durata: ${duration} sec | Stile: ${toneMap[tone]}`;
+            
+            // Badge orario del corpo
+            document.getElementById('body-time-badge').innerText = duration === '30' ? 'Da 4 a 25 Secondi' : 'Da 4 a 50 Secondi';
+
+            // Render Hook
+            const hookContainer = document.getElementById('block-hook');
+            hookContainer.innerHTML = `
+                <div class="script-part bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="part-label font-bold text-xs uppercase tracking-wider text-amber-600 block mb-1">🗣️ Cosa Dire (Audio Recitato)</span>
+                    <p class="part-content text-slate-800 font-semibold text-base sm:text-lg italic">${data.hook.text}</p>
+                </div>
+                <div class="script-part bg-amber-50/50 p-4 rounded-2xl border border-amber-100/60">
+                    <span class="part-label font-bold text-xs uppercase tracking-wider text-amber-700 block mb-1">🎬 Cosa Mostrare (Visual / B-Roll / Testo)</span>
+                    <p class="part-content text-slate-700 text-xs sm:text-sm">${data.hook.visual}</p>
+                </div>
+            `;
+
+            // Render Body
+            const bodyContainer = document.getElementById('block-body');
+            let bodyHTML = "";
+            data.body.forEach((pt, index) => {
+                bodyHTML += `
+                    <div class="space-y-2">
+                        <div class="script-part bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <span class="part-label font-bold text-xs uppercase tracking-wider text-blue-600 block mb-1">🗣️ ${pt.label}</span>
+                            <p class="part-content text-slate-800 font-medium text-sm sm:text-base">${pt.text}</p>
+                        </div>
+                        <div class="script-part bg-blue-50/40 p-3.5 rounded-2xl border border-blue-100/50">
+                            <span class="part-label font-bold text-xs uppercase tracking-wider text-blue-700 block mb-1">🎬 Indicazione Visiva</span>
+                            <p class="part-content text-slate-600 text-xs">${pt.visual}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            bodyContainer.innerHTML = bodyHTML;
+
+            // Render CTA
+            const ctaContainer = document.getElementById('block-cta');
+            ctaContainer.innerHTML = `
+                <div class="script-part bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="part-label font-bold text-xs uppercase tracking-wider text-emerald-600 block mb-1">🗣️ Frase Finale (Chiusura Ritmata)</span>
+                    <p class="part-content text-slate-900 font-bold text-base sm:text-lg">${data.cta.text}</p>
+                </div>
+                <div class="script-part bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100">
+                    <span class="part-label font-bold text-xs uppercase tracking-wider text-emerald-700 block mb-1">🎬 Azione a Schermo</span>
+                    <p class="part-content text-slate-700 text-xs sm:text-sm">${data.cta.visual}</p>
+                </div>
+            `;
+        }
+
+        // Gestione Storico LocalStorage
+        function loadHistory() {
+            const stored = localStorage.getItem('shorts_script_history');
+            if (stored) {
+                try {
+                    historyData = JSON.parse(stored);
+                } catch(e) {
+                    historyData = [];
+                }
+            }
+            updateHistoryUI();
+        }
+
+        function saveToHistory(item) {
+            historyData.unshift(item); // Aggiungi in cima
+            if (historyData.length > 20) historyData.pop(); // Max 20 elementi
+            localStorage.setItem('shorts_script_history', JSON.stringify(historyData));
+            updateHistoryUI();
+        }
+
+        function clearHistory() {
+            historyData = [];
+            localStorage.removeItem('shorts_script_history');
+            updateHistoryUI();
+            showToast('Storico Svuotato', 'Tutti gli script salvati sono stati rimossi.');
+        }
+
+        function updateHistoryUI() {
+            document.getElementById('history-count').innerText = historyData.length;
+            const container = document.getElementById('history-list');
+
+            if (historyData.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-slate-400">
+                        <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+                        <p class="text-sm">Nessuno script salvato nello storico.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = "";
+            historyData.forEach(item => {
+                html += `
+                    <div class="p-4 rounded-2xl border border-slate-200 hover:border-emerald-300 transition-all bg-white flex items-center justify-between gap-4">
+                        <div class="overflow-hidden">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">${item.duration}s</span>
+                                <span class="text-xs text-slate-400">${item.date}</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm truncate">${item.topic}</h4>
+                            <p class="text-xs text-slate-500 capitalize">Tono: ${item.tone}</p>
+                        </div>
+                        <button onclick='restoreScript(${item.id})' class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 font-semibold text-xs transition-colors shrink-0 flex items-center gap-1">
+                            <span>Carica</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function restoreScript(id) {
+            const item = historyData.find(x => x.id === id);
+            if (!item) return;
+
+            document.getElementById('topic').value = item.topic;
+            
+            // Imposta durata
+            const radios = document.getElementsByName('duration');
+            radios.forEach(r => {
+                r.checked = (r.value === item.duration);
+            });
+            updateRadioStyles();
+
+            document.getElementById('tone').value = item.tone;
+
+            renderScript(item.data, item.topic, item.duration, item.tone);
+
+            toggleHistoryModal();
+
+            const resSection = document.getElementById('result-section');
+            resSection.classList.remove('hidden');
+            resSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            showToast('Script Caricato', `Caricato "${item.topic}" dallo storico.`);
+        }
+
+        function toggleHistoryModal() {yId('history-modal');
+            modal.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
